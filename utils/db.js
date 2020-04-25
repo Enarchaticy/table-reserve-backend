@@ -10,12 +10,12 @@ const options = {
   auth: {
     user: process.env.DB_AUTH_USERNAME,
     password: process.env.DB_AUTH_PASSWORD,
-  }
+  },
 };
 
 module.exports = {
-// Use connect method to connect to the server
-  createDbConnection: function (req, res, next) {
+  // Use connect method to connect to the server
+  createDbConnection: function(req, res, next) {
     MongoClient.connect(url, options, function(err, client) {
       if (err) {
         console.log(err);
@@ -32,5 +32,5 @@ module.exports = {
       req.dbClient.close();
     }
     next();
-  }
+  },
 };

@@ -38,11 +38,10 @@ function apiErrorHandler(err, req, res) {
 }
 
 module.exports = {
-  registerErrorHandler: function (req, res, next) {
+  registerErrorHandler: function(req, res, next) {
     obj.req = req;
     obj.res = res;
     res.throw = apiErrorHandler;
     next();
   },
-}
-;
+};

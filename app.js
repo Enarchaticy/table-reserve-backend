@@ -1,17 +1,19 @@
 'use strict';
 /*
-* @TODO Rewrite this whole swagger-express-mw
-*   Full of vulnerability and can't migrate up.
-* */
+ * @TODO Rewrite this whole swagger-express-mw
+ *   Full of vulnerability and can't migrate up.
+ * */
 require('./utils/hack');
 const SwaggerExpress = require('swagger-express-mw');
 const app = require('express')();
 const swaggerUi = require('swagger-ui-express');
 const dbExpress = require('./utils/db');
+const cors = require('cors');
+const errorHandler = require('./utils/api-error-handler');
 module.exports = app; // for testing
 
 const config = {
-  appRoot: __dirname // required config
+  appRoot: __dirname, // required config
 };
 const swaggerUiOptions = {
   explorer: true,
@@ -19,10 +21,10 @@ const swaggerUiOptions = {
     urls: [
       {
         url: 'http://127.0.0.1:8080/swagger',
-        name: 'Spec1'
-      }
+        name: 'Spec1',
+      },
     ],
-  }
+  },
 };
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, swaggerUiOptions));
 
@@ -39,9 +41,12 @@ app.use((req, res, next) => {
   };
   next();
 });
-
+app.use(cors());
 SwaggerExpress.create(config, function(err, swaggerExpress) {
-  if (err) { throw err; }
+  if (err) {
+    throw err;
+  }
+  app.use(errorHandler.registerErrorHandler);
   app.use(dbExpress.createDbConnection);
   swaggerExpress.register(app);
   app.use(dbExpress.closeDbConnection);

@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   api:
     image: node:10
@@ -31,7 +31,7 @@ services:
       - 1025:1025
   db:
     image: mongo
-#    restart: always
+    #    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root

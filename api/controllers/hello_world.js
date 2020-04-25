@@ -25,7 +25,7 @@ var util = require('util');
   we specify that in the exports of this module that 'hello' maps to the function named 'hello'
  */
 module.exports = {
-  hello: hello
+  hello: hello,
 };
 
 /*
@@ -39,9 +39,8 @@ async function hello(req, res) {
   var name = req.swagger.params.name.value || 'stranger';
   var hello = util.format('Hello, %s!', name);
   //await req.db.collection('test').insertOne({test: 'testData'});
-  let res123 = await req.db.collection('test').insertOne({test: 'testData'});
+  let res123 = await req.db.collection('test').insertOne({ test: 'testData23' });
   console.log(res123);
   // this sends back a JSON response which is a single string
   res.json(hello);
 }
-
