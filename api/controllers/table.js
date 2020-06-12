@@ -14,10 +14,9 @@ async function createTables(req, res) {
   let tables = req.swagger.params.tables.value;
   try {
     await req.db.collection('table').insert(tables);
-    res.json({ success: true, message: 'sikeres feltöltés' });
+    res.status(201).json({ message: 'sikeres feltöltés' });
   } catch (e) {
-    res.status(400);
-    res.json({ success: false, message: e.message });
+    res.status(400).json({ message: e.message });
   }
 }
 
@@ -25,27 +24,25 @@ async function deleteTablesByPlace(req, res) {
   let placeId = req.swagger.params.placeId.value;
   try {
     await req.db.collection('table').deleteMany({ placeId: placeId });
-    res.json({ success: true, message: 'sikeres tőrlés' });
+    res.status(200).json({ message: 'sikeres tőrlés' });
   } catch (e) {
-    res.status(400);
-    res.json({ success: false, message: e.message });
+    res.status(400).json({ message: e.message });
   }
 }
 
 async function getTable(req, res) {
   let id = req.swagger.params.id.value;
   try {
-    res.json(DataFixer.replacePrivateId(await req.db.collection('table').findOne({ _id: ObjectId(id) })));
+    res.status(200).json(DataFixer.replacePrivateId(await req.db.collection('table').findOne({ _id: ObjectId(id) })));
   } catch (e) {
-    res.status(400);
-    res.json({ success: false, message: e.message });
+    res.status(400).json({ message: e.message });
   }
 }
 
 async function getTablesByPlace(req, res) {
   let placeId = req.swagger.params.placeId.value;
   try {
-    res.json(
+    res.status(200).json(
       DataFixer.replacePrivateId(
         await req.db
           .collection('table')
@@ -54,7 +51,6 @@ async function getTablesByPlace(req, res) {
       )
     );
   } catch (e) {
-    res.status(400);
-    res.json({ success: false, message: e.message });
+    res.status(400).json({ message: e.message });
   }
 }

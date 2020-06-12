@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.0.1"
+  version: "1.0.0"
   title: Table Reservation App
 # during dev, should point to your local machine
 host: localhost:8080
@@ -17,181 +17,29 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+tags:
+  - name: user
+    description: User based operations
+  - name: reservation
+    description: Reservation for tables
+  - name: table
+    description: Tables from places
+  - name: place
+    description: Operations for nightclubs, pubs and other places
+
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
-    get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            # a pointer to a definition
-            $ref: "#/definitions/DefaultResponse"
-        # responses may fall through to errors
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-
-
-  /reservation/create:
-    x-swagger-router-controller: reservation
-    post:
-      description: Add the parameter to the database reservations collection  
-      operationId: createReservation
-      parameters:
-        - name: reservation
-          in: body
-          description: The reservation we want to upload to the database
-          required: true  
-          schema:
-            $ref: "#/definitions/Reservation"
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-  /reservation/update/{id}:
-    x-swagger-router-controller: reservation
-    put:
-      description: Change the prevoius reservation with a new reservation
-      operationId: updateReservation
-      parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
-        - name: reservation
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/Reservation'
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-  /reservation/delete:
-    x-swagger-router-controller: reservation
-    delete:
-      description: Delete the reservation by the id  
-      operationId: deleteReservation
-      parameters:
-        - name: id
-          in: query
-          description: The reservation we want to delete from the database
-          required: true  
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-  /reservation/findByDateAndTable:
-    x-swagger-router-controller: reservation
-    get:
-      description: Returns the reservation for a specific table and a specific date
-      operationId: getReservationByDateAndTable
-      parameters:
-        - name: date
-          in: query
-          description: The date 
-          required: true
-          type: string
-        - name: tableId
-          in: query
-          description: The id of the table we searching for
-          required: true
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/Reservation"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-  /reservations/findByDateAndPlace:
-    x-swagger-router-controller: reservation
-    get:
-      description: Returns the reservations by a place and a date
-      operationId: getReservationsByDateAndPlace
-      parameters:
-        - name: date
-          in: query
-          description: The date 
-          required: true
-          type: string
-        - name: placeId
-          in: query
-          description: The id of the place 
-          required: true
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/Reservations"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-  /reservations/findByUser:
-    x-swagger-router-controller: reservation
-    get:
-      description: Returns those reservation that the current user made
-      operationId: getReservationsByUser
-      parameters:
-        - name: userId
-          in: query
-          description: The id of the current user who asks for his/her reservations 
-          required: true
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/Reservations"
-        400:
-          description: Error
-          schema:
-            $ref: "#/definitions/DefaultResponse"
-
-
   /user/create:
     x-swagger-router-controller: user
     post:
       description: Add the parameter to the database user collection  
       operationId: createUser
+      tags:
+        - user
       parameters:
         - name: user
           in: body
@@ -200,25 +48,25 @@ paths:
           schema:
             $ref: "#/definitions/User"
       responses:
-        "200":
+        "201":
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
 
-  /user/update/{id}:
+  /user/update:
     x-swagger-router-controller: user
     put:
       description: Change the prevoius user with a new user
       operationId: updateUser
+      tags:
+        - user
+      security:
+        - Bearer: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
         - name: user
           in: body
           required: true
@@ -229,7 +77,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -239,18 +87,16 @@ paths:
     delete:
       description: Delete the user by the id  
       operationId: deleteUser
-      parameters:
-        - name: id
-          in: query
-          description: The user we want to delete from the database
-          required: true  
-          type: string
+      tags:
+        - user
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -260,6 +106,10 @@ paths:
     get:
       description: Returns the user for a specific table and a specific date
       operationId: getUser
+      tags:
+        - user
+      security:
+        - Bearer: []
       parameters:
         - name: id
           in: query
@@ -276,13 +126,202 @@ paths:
           schema:
             $ref: "#/definitions/DefaultResponse"
 
+  /user/login:
+    x-swagger-router-controller: user
+    post:
+      summary: Authenticate the user
+      operationId: loginUser
+      tags:
+        - user
+      parameters:
+        - in: body
+          name: auth
+          description: Authentication credentials
+          required: true
+          schema:
+            $ref: '#/definitions/UserAuth'
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: '#/definitions/TokenResponse'
+        default:
+          description: "Error"
+          schema:
+            $ref: '#/definitions/DefaultResponse' 
 
+
+            
+  /reservation/create:
+    x-swagger-router-controller: reservation
+    post:
+      description: Add the parameter to the database reservations collection  
+      operationId: createReservation
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      parameters:
+        - name: reservation
+          in: body
+          description: The reservation we want to upload to the database
+          required: true  
+          schema:
+            $ref: "#/definitions/Reservation"
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+  /reservation/update/{id}:
+    x-swagger-router-controller: reservation
+    put:
+      description: Change the prevoius reservation with a new reservation
+      operationId: updateReservation
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: reservation
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Reservation'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+  /reservation/delete:
+    x-swagger-router-controller: reservation
+    delete:
+      description: Delete the reservation by the id  
+      operationId: deleteReservation
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: query
+          description: The reservation we want to delete from the database
+          required: true  
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+  /reservation/findByDateAndTable:
+    x-swagger-router-controller: reservation
+    get:
+      description: Returns the reservation for a specific table and a specific date
+      operationId: getReservationByDateAndTable
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      parameters:
+        - name: date
+          in: query
+          description: The date 
+          required: true
+          type: string
+        - name: tableId
+          in: query
+          description: The id of the table we searching for
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Reservation"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+  /reservations/findByDateAndPlace:
+    x-swagger-router-controller: reservation
+    get:
+      description: Returns the reservations by a place and a date
+      operationId: getReservationsByDateAndPlace
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      parameters:
+        - name: date
+          in: query
+          description: The date 
+          required: true
+          type: string
+        - name: placeId
+          in: query
+          description: The id of the place 
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Reservations"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+  /reservations/findByUser:
+    x-swagger-router-controller: reservation
+    get:
+      description: Returns those reservation that the current user made
+      operationId: getReservationsByUser
+      tags:
+        - reservation
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Reservations"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/DefaultResponse"
+
+          
 
   /place/create:
     x-swagger-router-controller: place
     post:
       description: Add the parameter to the database place collection 
       operationId: createPlace
+      tags:
+        - place
+      security:
+        - Bearer: []
       parameters:
         - name: place
           in: body
@@ -291,11 +330,11 @@ paths:
           schema:
             $ref: "#/definitions/Place"
       responses:
-        "200":
+        "201":
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -305,6 +344,10 @@ paths:
     put:
       description: Change the prevoius place with a new user
       operationId: updatePlace
+      tags:
+        - place
+      security:
+        - Bearer: []
       parameters:
         - name: id
           in: path
@@ -320,7 +363,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -330,6 +373,10 @@ paths:
     delete:
       description: Delete the place by the id  
       operationId: deletePlace
+      tags:
+        - place
+      security:
+        - Bearer: []
       parameters:
         - name: id
           in: query
@@ -341,7 +388,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -351,6 +398,10 @@ paths:
     get:
       description: Returns the place by id
       operationId: getPlace
+      tags:
+        - place
+      security:
+        - Bearer: []
       parameters:
         - name: id
           in: query
@@ -362,7 +413,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/Place"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -372,18 +423,16 @@ paths:
     get:
       description: Returns all places that the person have
       operationId: getPlacesByOwner
-      parameters:
-        - name: userId
-          in: query
-          description: The user id of the owner
-          required: true
-          type: string
+      tags:
+        - place
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
           schema:
             $ref: "#/definitions/Places"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -393,24 +442,30 @@ paths:
     get:
       description: Returns all places
       operationId: getPlaces
+      tags:
+        - place
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
           schema:
             $ref: "#/definitions/Places"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"            
 
 
-
-# itt lehet inkább tables/create kell és akkor lehet egyben feltölteni az asztalokat
   /tables/create:
     x-swagger-router-controller: table
     post:
       description: Add the tables to the collection 
       operationId: createTables
+      tags:
+        - table
+      security:
+        - Bearer: []
       parameters:
         - name: tables
           in: body
@@ -419,45 +474,24 @@ paths:
           schema:
             $ref: "#/definitions/Tables"
       responses:
-        "200":
+        "201":
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
-
-  # /table/update/{id}:
-  #   x-swagger-router-controller: place
-  #   put:
-  #     description: Change the prevoius place with a new user
-  #     operationId: updatePlace
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         type: string
-  #       - name: place
-  #         in: body
-  #         required: true
-  #         schema:
-  #           $ref: '#/definitions/Place'
-  #     responses:
-  #       "200":
-  #         description: Success
-  #         schema:
-  #           $ref: "#/definitions/DefaultResponse"
-  #       400:
-  #         description: Error
-  #         schema:
-  #           $ref: "#/definitions/DefaultResponse"
 
   /tables/deleteByPlace:
     x-swagger-router-controller: table
     delete:
       description: Delete tables by place  
       operationId: deleteTablesByPlace
+      tags:
+        - table
+      security:
+        - Bearer: []
       parameters:
         - name: placeId
           in: query
@@ -469,7 +503,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/DefaultResponse"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -479,6 +513,10 @@ paths:
     get:
       description: Returns the table by id
       operationId: getTable
+      tags:
+        - table
+      security:
+        - Bearer: []
       parameters:
         - name: id
           in: query
@@ -490,7 +528,7 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/Place"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
@@ -500,6 +538,10 @@ paths:
     get:
       description: Returns all tables in a place
       operationId: getTablesByPlace
+      tags:
+        - table
+      security:
+        - Bearer: []
       parameters:
         - name: placeId
           in: query
@@ -511,14 +553,13 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/Tables"
-        400:
+        default:
           description: Error
           schema:
             $ref: "#/definitions/DefaultResponse"
 
   /swagger:
     x-swagger-pipe: swagger_raw
-# complex objects have schema definitions
 definitions:
   Reservations:
     type: array
@@ -552,6 +593,12 @@ definitions:
         type: string
       name:
         type: string
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
 
   Places:
     type: array
@@ -571,10 +618,7 @@ definitions:
         type: string
       openingHours:
         $ref: "#/definitions/OpeningHours"
-#      floorMap:
-#        $ref: "#/definitions/FloorMap"
 
-#  FloorMap:
   Tables:
     type: array
     items:
@@ -612,15 +656,31 @@ definitions:
         from:
           type: string
         to:
-          type: string 
+          type: string
+
+  UserAuth:
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
+
+  TokenResponse:
+    properties:
+      token:
+        type: string
+        description: User bearer token
+      user:
+        $ref: "#/definitions/User"
 
   DefaultResponse:
     type: object
-    required:
-      - success
     properties:
-      success:
-        type: boolean
       message:
         type: string
       id:

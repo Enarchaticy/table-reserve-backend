@@ -9,11 +9,12 @@ const app = require('express')();
 const swaggerUi = require('swagger-ui-express');
 const dbExpress = require('./utils/db');
 const cors = require('cors');
-const errorHandler = require('./utils/api-error-handler');
+const swaggerSecurityHandlers = require('./utils/auth-gates');
 module.exports = app; // for testing
 
 const config = {
   appRoot: __dirname, // required config
+  swaggerSecurityHandlers: swaggerSecurityHandlers
 };
 const swaggerUiOptions = {
   explorer: true,
@@ -46,7 +47,6 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) {
     throw err;
   }
-  app.use(errorHandler.registerErrorHandler);
   app.use(dbExpress.createDbConnection);
   swaggerExpress.register(app);
   app.use(dbExpress.closeDbConnection);
