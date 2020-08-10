@@ -12,13 +12,25 @@ module.exports = {
   getReservationsByUser,
 };
 
+async function reservationByDateAndTable(req, date, tableId) {
+  let dateRegex = date.substring(0, 10) + '.*';
+  return DataFixer.replacePrivateId(
+    await req.db.collection('reservation').findOne({ date: { $regex: dateRegex }, tableId: tableId })
+  );
+}
+
 async function createReservation(req, res) {
   let reservation = req.swagger.params.reservation.value;
   reservation.userId = req.auth.id;
   try {
+    let asd = await reservationByDateAndTable(req, reservation.date, reservation.tableId)
+    if (asd.placeId !== undefined) {
+      throw new Error('Az asztalra van már foglalás ezen a napon');
+    }
     await req.db.collection('reservation').insertOne(reservation);
     res.status(201).json({ message: 'sikeres feltöltés' });
   } catch (e) {
+    console.log(e);
     res.status(400).json({ message: e.message });
   }
 }
@@ -53,13 +65,8 @@ async function deleteReservation(req, res) {
 async function getReservationByDateAndTable(req, res) {
   let date = req.swagger.params.date.value;
   let tableId = req.swagger.params.tableId.value;
-  let dateRegex = date.substring(0, 10) + '.*';
   try {
-    res.status(200).json(
-      DataFixer.replacePrivateId(
-        await req.db.collection('reservation').findOne({ date: { $regex: dateRegex }, tableId: tableId })
-      )
-    );
+    res.status(200).json(await reservationByDateAndTable(req, date, tableId));
   } catch (e) {
     res.status(400).json({ message: e.message });
   }
@@ -86,11 +93,13 @@ async function getReservationsByDateAndPlace(req, res) {
 async function getReservationsByUser(req, res) {
   let userId = req.auth.id;
   try {
-    res.status(200).json(
-      DataFixer.replacePrivateId(
-        await req.db.collection('reservation').find({ userId: userId }).sort({ date: -1 }).toArray()
-      )
-    );
+    res
+      .status(200)
+      .json(
+        DataFixer.replacePrivateId(
+          await req.db.collection('reservation').find({ userId: userId }).sort({ date: -1 }).toArray()
+        )
+      );
   } catch (e) {
     res.status(400).json({ message: e.message });
   }

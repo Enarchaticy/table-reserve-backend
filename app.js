@@ -21,7 +21,7 @@ const swaggerUiOptions = {
   swaggerOptions: {
     urls: [
       {
-        url: 'http://127.0.0.1:8080/swagger',
+        url: process.env.API_URL + '/swagger',
         name: 'Spec1',
       },
     ],
@@ -52,5 +52,6 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   app.use(dbExpress.closeDbConnection);
 
   const port = process.env.PORT || 8080;
+  console.log(process.env.DB_NAME);
   app.listen(port);
 });

@@ -14,7 +14,7 @@ module.exports = {
     let data;
     try {
       const token = tokenString.split(' ')[1];
-      data = jwt.verify(token, 'valamititkositoize');
+      data = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
       return callback(new Error(e.message));
     }

@@ -91,6 +91,12 @@ paths:
         - user
       security:
         - Bearer: []
+      parameters:
+        - name: password
+          in: query
+          description: The users password to confirm that he want to delete his profile
+          required: true
+          type: string
       responses:
         "200":
           description: Success
@@ -599,6 +605,7 @@ definitions:
       password:
         type: string
         format: password
+        minLength: 6
 
   Places:
     type: array

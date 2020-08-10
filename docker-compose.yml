@@ -10,17 +10,23 @@ services:
     command: bash -c "npm install && npm run dev"
     environment:
       #mailhog
-      MAIL_HOST: mailhog
-      MAIL_PORT: 1025
-      MAIL_DRIVER: smtp
+      #MAIL_HOST: mailhog
+      #MAIL_PORT: 1025
+      #MAIL_DRIVER: smtp
       #app
-      APP_PORT: 8080
+      APP_PORT: ${APP_PORT}
+      API_URL: ${APi_URL}
+      #crypting
+      PASSWORD_SALT: ${PASSWORD_SALT}
+      #jwt
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       #db
-      DB_URI: db
-      DB_PORT: 27017
-      DB_NAME: dbname
-      DB_AUTH_USERNAME: root
-      DB_AUTH_PASSWORD: root
+      DB_URI: ${DB_URI}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_AUTH_USERNAME: ${DB_AUTH_USERNAME}
+      DB_AUTH_PASSWORD: ${DB_AUTH_PASSWORD}
     links:
       - db
       - mailhog
@@ -33,18 +39,18 @@ services:
     image: mongo
     #    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: dbname
+      MONGO_INITDB_ROOT_USERNAME: ${DB_AUTH_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_AUTH_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
     ports:
       - 27017:27017
   db-ui:
     image: mongo-express
     restart: always
     environment:
-      ME_CONFIG_MONGODB_SERVER: db
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_SERVER: ${DB_URI}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DB_AUTH_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DB_AUTH_PASSWORD}
     ports:
       - 8082:8081
     links:

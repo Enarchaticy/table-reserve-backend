@@ -20,7 +20,7 @@ async function createUser(req, res) {
     if (dbresult) {
       res.status(409).json({ message: 'Email cím már használt' });
     }
-    await bcrypt.hash(user.password, 12).then((hashedPass) => {
+    await bcrypt.hash(user.password, parseInt(process.env.PASSWORD_SALT)).then((hashedPass) => {
       user.password = hashedPass;
     });
     await req.db.collection('user').insertOne(user);
@@ -36,24 +36,28 @@ async function updateUser(req, res) {
   try {
     delete user.id;
     if (user.password) {
-      await bcrypt.hash(user.password, 12).then((hashedPass) => {
+      await bcrypt.hash(user.password, parseInt(process.env.PASSWORD_SALT)).then((hashedPass) => {
         user.password = hashedPass;
       });
     }
-    const dbresult = await req.db.collection('user').updateOne({ _id: ObjectId(id) }, { $set: user });
-    console.log(dbresult);
+    await req.db.collection('user').updateOne({ _id: ObjectId(id) }, { $set: user });
     res.status(200).json({ message: 'sikeres változtatás' });
   } catch (e) {
-    console.log(e);
     res.status(400).json({ message: e.message });
   }
 }
 
 async function deleteUser(req, res) {
   let id = req.auth.id;
+  let password = req.swagger.params.password.value;
   try {
-    await req.db.collection('user').deleteOne({ _id: ObjectId(id) });
-    res.status(200).json({ message: 'sikeres törlés' });
+    const dbresult = await req.db.collection('user').findOne({ _id: ObjectId(id) });
+    if (await bcrypt.compare(password, dbresult.password)) {
+      await req.db.collection('user').deleteOne({ _id: ObjectId(id) });
+      res.status(200).json({ message: 'sikeres törlés' });
+    } else {
+      throw new Error('Rossz jelszó');
+    }
   } catch (e) {
     res.status(400).json({ message: e.message });
   }
@@ -76,8 +80,8 @@ async function loginUser(req, res) {
   try {
     let dbresult = DataFixer.replacePrivateId(await req.db.collection('user').findOne({ email: email }));
     if (await bcrypt.compare(password, dbresult.password)) {
-      const token = jwt.sign({ id: dbresult.id, email: dbresult.email }, 'valamititkositoize', { expiresIn: '1h' });
-      res.status(200).json({ token: token, user: { name: dbresult.name, email: dbresult.email } });
+      const token = jwt.sign({ id: dbresult.id, email: dbresult.email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+      res.status(200).json({ token: token, user: { id: dbresult.id, name: dbresult.name, email: dbresult.email } });
     } else {
       throw new Error('Rossz jelszó');
     }
