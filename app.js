@@ -52,6 +52,5 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   app.use(dbExpress.closeDbConnection);
 
   const port = process.env.PORT || 8080;
-  console.log(process.env.DB_NAME);
   app.listen(port);
 });
