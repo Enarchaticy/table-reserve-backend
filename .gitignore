@@ -30,6 +30,9 @@ node_modules
 # Users Environment Variables
 .lock-wscript
 
+# Dockerfile
+Dockerfile
+
 # Runtime configuration for swagger app
 config/runtime.yaml
 
